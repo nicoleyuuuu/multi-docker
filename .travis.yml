@@ -1,0 +1,19 @@
+sudo: required
+
+services:
+   - docker
+  
+before_install:
+  - docker build -t yt/react-test -f ./client/Dockerfile.dev ./client
+
+# test section
+script:
+  - docker run yt/react-test npm test -- --corverage
+
+# build production version of all projects and push it to docker hub
+after_success:
+  - docker build -t yt/multi-client ./client
+  - docker build -t yt/multi-nginx ./nginx
+  - docker build -t yt/multi-server ./server
+  - docker build -t yt/multi-worker ./worker
+
