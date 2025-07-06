@@ -8,7 +8,7 @@ before_install:
 
 # test section
 script:
-  - docker run yt/react-test npm test -- --corverage
+  - docker run yt/react-test npm test -- --coverage
 
 # build production version of all projects
 after_success:
