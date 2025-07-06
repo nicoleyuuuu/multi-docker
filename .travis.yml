@@ -10,10 +10,21 @@ before_install:
 script:
   - docker run yt/react-test npm test -- --corverage
 
-# build production version of all projects and push it to docker hub
+# build production version of all projects
 after_success:
   - docker build -t yt/multi-client ./client
   - docker build -t yt/multi-nginx ./nginx
   - docker build -t yt/multi-server ./server
   - docker build -t yt/multi-worker ./worker
+  # take the images and push it to docker hub
+  # in order to push it to docker hub, will need to log in into docker CLI
+  # run "docker login" in the terminal, will automatically associate the docker account
+  # use travis CI to manage the docker credentials
+  # echo "$DOCKER_PASSWORD": retreive the env var, and use it as an input to the next command
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # pish the image to docker hub
+  - docker push yt/multi-client
+  - docker push yt/multi-nginx
+  - docker push yt/multi-server
+  - docker push yt/multi-worker
 
