@@ -12,10 +12,10 @@ script:
 
 # build production version of all projects
 after_success:
-  - docker build -t yt/multi-client ./client
-  - docker build -t yt/multi-nginx ./nginx
-  - docker build -t yt/multi-server ./server
-  - docker build -t yt/multi-worker ./worker
+  - docker build -t $DOCKER_ID/multi-client ./client
+  - docker build -t $DOCKER_ID/multi-nginx ./nginx
+  - docker build -t $DOCKER_ID/multi-server ./server
+  - docker build -t $DOCKER_ID/multi-worker ./worker
   # take the images and push it to docker hub
   # in order to push it to docker hub, will need to log in into docker CLI
   # run "docker login" in the terminal, will automatically associate the docker account
@@ -23,8 +23,8 @@ after_success:
   # echo "$DOCKER_PASSWORD": retreive the env var, and use it as an input to the next command
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   # pish the image to docker hub
-  - docker push yt/multi-client
-  - docker push yt/multi-nginx
-  - docker push yt/multi-server
-  - docker push yt/multi-worker
+  - docker push $DOCKER_ID/multi-client
+  - docker push $DOCKER_ID/multi-nginx
+  - docker push $DOCKER_ID/multi-server
+  - docker push $DOCKER_ID/multi-worker
 
