@@ -3,85 +3,34 @@ version: '3'
 
 # services usually = container
 services: 
-  # name of the service/container
-  # by specifying all the services needed in the file, docker compose will automatically build the netrowk connection among them
-  postgres: 
-    # go to docker hub, specify the image to be used to create the container
-    # in the docker hub, you could find instruction of how to assign different env vars/optional commands
-    image: 'postgres:latest'
-    environment:
-      - POSTGRES_PASSWORD=postgres_password
-
-  redis:
-    image: 'redis:latest'
-
-  api:
-    build:
-      # not specifying any folder in 'docker'
-      dockerfile: Dockerfile.dev
-      # specify the folder of the docker file in 'context'
-      # use all the file inside this folder to build the docker image
-      context: ./server
-    volumes:
-      # inside the container, don't overwrite the folder
-      - /app/node_modules
-      - ./server:/app
-    # specify some env vars/config for the server
-    # the config will customize the way the server run when it starts as a container
-    # connect to the variable in the keys.js
-    ## env vars
-    # variableName = values
-    #### sets a variable in the container at run time of the container(only when the container is up)
-    #### when specifying env var in docker compose file, that info is not encoded in the image
-    #### it's set up only when the container is created and set up inside the container
-    # variableName
-    #### sets a variable in the container at run time of the container(only when the container is up)
-    #### if no value is specified, the value is taken from your computer by default(secret API key stored locally)
-    #### it will not saved as your project
-    environment:
-    # - is an array
-    # any element in an array will get its own -
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - PGUSER=postgres
-      - PGHOST=postgres
-      - PGDATABASE=postgres
-      - PGPASSWORD=postgres_password
-      - PGPORT=5432
-    expose:
-      - 5000
-  
   client:
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./client
-    volumes:
-      - /app/node_modules
-      - ./client:/app
-    expose:
-      - 3000
+    image: "yingtingyu33/multi-client"
+    mem_limit: 128m
+    hostname: client
+  server:
+    image: "yingtingyu33/multi-server"
+    mem_limit: 128m
+    hostname: api
     environment:
-      - WDS_SOCKET_PORT=0
-  
+      - REDIS_HOST=$REDIS_HOST
+      - REDIS_PORT=$REDIS_PORT
+      - PGUSER=$PGUSER
+      - PGHOST=$PGHOST
+      - PGDATABASE=$PGDATABASE
+      - PGPASSWORD=$PGPASSWORD
+      - PGPORT=$PGPORT
   worker:
-    build:
-      dockerfile: Dockerfile.dev
-      context: ./worker
-    volumes:
-      - /app/node_modules
-      - ./worker:/app
+    image: "yingtingyu33/multi-worker"
+    mem_limit: 128m
+    hostname: worker
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - REDIS_HOST=$REDIS_HOST
+      - REDIS_PORT=$REDIS_PORT
 
   nginx:
     # the server always restart if error occurs
-    restart: always
-    build: 
-      dockerfile: Dockerfile.dev
-      context: ./nginx
+    image: "yingtingyu33/multi-nginx"
+    mem_limit: 128m
+    hostname: nginx
     ports:
-      - '3050:80'
-    depends_on:
-      - api
-      - client
+      - '80:80'
